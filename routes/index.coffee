@@ -3,4 +3,7 @@ exports.index = (req, res) ->
 		title: "Hola mundo"
 exports.lista = (req, res) ->
 	res.render "lista",
-		title: "Lista de Datos"		
+		title: "Lista de Datos"	
+exports.productos = (req, res) ->
+	res.render "productos",
+		title: "Productos"	
