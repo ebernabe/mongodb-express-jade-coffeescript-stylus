@@ -89,3 +89,73 @@ var producto_schema = require('../models/producto')
               return res.redirect('/producto/' + id)
             }
     }
+
+    exports.remove = function (req, res, next) {
+        var id = req.params.id
+
+        Producto.findById(id, gotProduct)
+
+        function gotProduct (err, producto) {
+          if (err) {
+            console.log(err)
+            return next(err)
+          }
+
+          if (!producto) {
+            return res.send('Invalid ID. (De algún otro lado la sacaste tú...)')
+          }
+
+          // Tenemos el producto, eliminemoslo
+          producto.remove(onRemoved)
+        }
+
+        function onRemoved (err) {
+          if (err) {
+            console.log(err)
+            return next(err)
+          }
+
+          return res.redirect('/')
+        }
+    }
+
+    exports.create = function (req, res, next) {
+            if (req.method === 'GET') {
+              return res.render('show_edit', {title: 'Nuevo Producto', producto: {}})
+            } else if (req.method === 'POST') {
+              // Obtenemos las variables y las validamos
+              var nombre      = req.body.nombre       || ''
+              var descripcion = req.body.descripcion  || ''
+              var precio      = req.body.precio       || ''
+
+              // Validemos que nombre o descripcion no vengan vacíos
+              if ((nombre=== '') || (descripcion === '')) {
+                console.log('ERROR: Campos vacios')
+                return res.send('Hay campos vacíos, revisar')
+              }
+
+              // Validemos que el precio sea número
+              if (isNaN(precio)) {
+                console.log('ERROR: Precio no es número')
+                return res.send('Precio no es un número !!!!!')
+              }
+
+              // Creamos el documento y lo guardamos
+              var producto = new Producto({
+                  nombre        : nombre
+                , descripcion   : descripcion
+                , precio        : precio
+              })
+
+              producto.save(onSaved)
+
+              function onSaved (err) {
+                if (err) {
+                  console.log(err)
+                  return next(err)
+                }
+
+                return res.redirect('/')
+              }
+            }  
+}
